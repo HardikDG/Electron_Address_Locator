@@ -10,25 +10,24 @@ import { SetupService } from "../core/setup-service";
 })
 export class SetupPage {
   // Configuration Values hard-coded until we write Storage code.
-  personInfo: Person = new Person('','');
+  personInfo: Person = new Person('', '');
 
   constructor(private setupService: SetupService,
     public navCtrl: NavController,
     public navParams: NavParams) { }
 
-  ionViewDidLoad() {
-    this.setupService.fetchPerson()
-      .then(p => {
-        this.personInfo = p;
-      })
-      .catch(e => {
-        console.error(e);
-      });
+  async ionViewDidLoad() {
+    try {
+      this.personInfo = await this.setupService.fetchPerson();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  setInfo() {
-    this.setupService.setPerson(this.personInfo)
-      .then(() => this.navCtrl.setRoot(HomePage))
+  async setInfo() {
+    await this.setupService.setPerson(this.personInfo)
       .catch((e) => console.error(e));
+
+    this.navCtrl.setRoot(HomePage);
   }
 }

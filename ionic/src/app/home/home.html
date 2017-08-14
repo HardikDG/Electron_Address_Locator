@@ -2,12 +2,12 @@
   <sebm-google-map [latitude]="getLatitude()" [longitude]="getLongitude()" [zoom]="18">
     <sebm-google-map-marker [latitude]="getLatitude()" [longitude]="getLongitude()">
       <sebm-google-map-info-window [disableAutoPan]="true">
-        <div *ngIf="located">
+        <div *ngIf="located()">
           <strong>
             Current Location:
           </strong> <br/> {{address}}
         </div>
-        <div *ngIf="!located">
+        <div *ngIf="!located()">
           <strong>Not protected</strong><br/> Current location (estimated)
         </div>
       </sebm-google-map-info-window>
@@ -22,8 +22,8 @@
     </ion-fab-list>
   </ion-fab>
   <div class="wr-well wr-float">
-    <h1 *ngIf="located">Congratulations - You're protected!</h1>
-    <h1 *ngIf="!located" class="danger">Please set your current location.</h1>
+    <h1 *ngIf="located()">Congratulations - You're protected!</h1>
+    <h1 *ngIf="!located()" class="danger">Please set your current location.</h1>
   </div>
 
 </ion-content>

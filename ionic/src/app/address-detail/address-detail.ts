@@ -46,12 +46,8 @@ export class AddressDetailPage {
       addressLine2: [this.address.addressLine2],
       addressLine1: [this.address.addressLine1, Validators.required],
       community: [this.address.community, Validators.required],
-      state: [this.address.state, Validators.compose([
-        Validators.required, Validators.pattern(/[a-zA-Z]{2}/)
-      ])],
-      postalCode: [this.address.postalCode, Validators.compose([
-        Validators.required, Validators.pattern(/\d{5}/)
-      ])]
+      state: [this.address.state, [Validators.required, Validators.pattern(/[a-zA-Z]{2}/)]],
+      postalCode: [this.address.postalCode, [Validators.required, Validators.pattern(/\d{5}/)]]
     }, { asyncValidator: this.validateAddress });
   }
 
@@ -60,18 +56,20 @@ export class AddressDetailPage {
   validateAddress(form: FormGroup): Promise<ValidationErrors> {
     clearTimeout(this.validateTimeout);
     return new Promise((resolve, reject) => {
-        this.validateTimeout = setTimeout(() => {
-          this.addressService.validate(form.value)
-            .then(data => {
-              Object.assign(this.address, data);
-              resolve(null);
-            })
-            .catch(err => {
-              let error = JSON.parse(err._body);
-              this.formErrors = error.message;
-              resolve(error.message);
-            });
-        }, 750);
+      this.validateTimeout = setTimeout(() => {
+        this.addressService.validate(form.value)
+          .then(data => {
+            Object.assign(this.address, data);
+            this.address.name = form.get('name').value;
+            this.address.icon = form.get('icon').value;
+            resolve(null);
+          })
+          .catch(err => {
+            let error = JSON.parse(err._body);
+            this.formErrors = error.message;
+            resolve(error.message);
+          });
+      }, 750);
     });
   }
 

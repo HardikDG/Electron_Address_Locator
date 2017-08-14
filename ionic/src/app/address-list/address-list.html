@@ -9,13 +9,12 @@
           <ion-card class="card">
             <ion-item>
               <button clear ion-button icon-only item-right 
-                [disabled]="!address.addressStatus"
-                *ngIf="address.addressStatus!=='PROVISIONED'"
+                *ngIf="address.id!==provisionedAddressId"
                 (click)="selectLocation(address)">
                 <ion-icon name="locate"></ion-icon>
               </button>
               <button clear ion-button icon-only item-right disabled
-                *ngIf="address.addressStatus==='PROVISIONED'">
+                *ngIf="address.id===provisionedAddressId">
                 <ion-icon  
                   name="checkmark">
                 </ion-icon>
@@ -24,7 +23,6 @@
                 <ion-icon name="create"></ion-icon>
               </button>
               <button clear ion-button icon-only item-right 
-                [disabled]="!address.addressId"
                 (click)="remove(address)">
                 <ion-icon color="danger" name="trash"></ion-icon>
               </button>

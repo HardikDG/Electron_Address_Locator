@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { HttpModule } from "@angular/http";
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
+import { IonicStorageModule } from '@ionic/storage';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MyApp } from './app.component';
 import { AddressDetailPage, AddressListPage, HomePage, SetupPage } from './pages';
@@ -11,6 +12,7 @@ import { AddressService } from './core/address-service';
 import { SetupService } from './core/setup-service';
 import { DispatcherService } from './core/dispatcher-service';
 import { ElectronIpcService } from "./core/electronipc-service";
+import { StorageServiceProvider } from './core/storage-service/storage-service';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,10 @@ import { ElectronIpcService } from "./core/electronipc-service";
     HttpModule,
     ReactiveFormsModule,
     IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot({
+      name: '__dispatcher',
+      driverOrder: ['indexeddb', 'websql']
+    }),
     AgmCoreModule.forRoot(),
     NgxElectronModule
   ],
@@ -38,7 +44,8 @@ import { ElectronIpcService } from "./core/electronipc-service";
     AddressListPage
   ],
   providers: [AddressService, SetupService, DispatcherService, ElectronIpcService,
-    { provide: ErrorHandler, useClass: IonicErrorHandler }]
+    { provide: ErrorHandler, useClass: IonicErrorHandler },
+    StorageServiceProvider]
 })
 export class AppModule { }
 

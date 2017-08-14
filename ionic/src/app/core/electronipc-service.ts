@@ -10,9 +10,13 @@ export class ElectronIpcService {
    * Sends a list of addresses to the main process, to be 
    * updated on the Locations menu.
    */
-  updateLocationsMenu(addresses: Address[]) {
+  updateLocationsMenu(addresses: Address[], provisionedId: string = '') {
     if (this.electron.ipcRenderer) {
-      this.electron.ipcRenderer.send('Locations', addresses);
+      this.electron.ipcRenderer.send('Locations', addresses, provisionedId);
     }
   }
 }
+
+
+
+

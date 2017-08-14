@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers } from '@angular/http';
 import { Address } from './address';
-import 'rxjs';
+import { Observable } from "rxjs/Observable";
+import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/retry';
+import 'rxjs/add/operator/toPromise';
 import { dispatcherApi } from "./config";
 
 @Injectable()
@@ -17,11 +20,18 @@ export class DispatcherService {
     const url = `${dispatcherApi.url}/GetAddressesByDid/${phone}`;
 
     return this.http.get(url)
-      .retry(2)
       .map(x => {
         var result: Address[] = x.json();
         return result;
       })
+      .catch(err => {
+        if (err.status && err.status === 404) {
+          return [];
+        } else {
+          return Observable.throw(err);
+        }
+      })
+      .retry(2)
       .toPromise();
   }
 
@@ -45,10 +55,11 @@ export class DispatcherService {
       }).toPromise();
   }
 
-  provisionAddress(address: Address): Promise<boolean> {
+  async provisionAddress(address: Address, license: string): Promise<boolean> {
     const url = `${dispatcherApi.url}/ProvisionAddress`;
     var headers = new Headers();
-    this.createHeaders(headers);
+    headers.append('Authorization', license);
+    headers.append('Accept', 'application/json');
 
     return this.http.post(url, address.addressId, { headers: headers })
       .map(x => {
@@ -61,10 +72,5 @@ export class DispatcherService {
     return this.http.delete(url)
       .map(x => true)
       .toPromise();
-  }
-
-  createHeaders(headers: Headers) {
-    headers.append('Authorization', dispatcherApi.auth);
-    headers.append('Accept', 'application/json');
   }
 }
