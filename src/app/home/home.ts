@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { Address } from '../core/address';
-
 import { FabContainer, NavController, NavParams } from 'ionic-angular';
-import { AddressListPage,SetupPage } from '../../app/pages';
-
-import { AgmCoreModule } from 'angular2-google-maps/core';
+import { Address } from '../core/address';
+import { AddressListPage, SetupPage } from '../../app/pages';
+import { AddressService } from "../core/address-service";
+import { SetupService } from "../core/setup-service";
 
 @Component({
   selector: 'page-home',
@@ -19,11 +18,46 @@ export class HomePage {
   };
   located = false;
 
-  constructor(public navCtrl: NavController, private navParams: NavParams) {
+  constructor(
+    private addressService: AddressService,
+    private setupService: SetupService,
+    public navCtrl: NavController,
+    private navParams: NavParams) {
     this.address = navParams.data.address;
-    if (this.address) {
+  }
+
+  async ionViewWillEnter() {
+    await this.ensureSetup();
+    if (this.address && this.address.addressStatus === 'PROVISIONED') {
       this.located = true;
     }
+  }
+
+  async ensureSetup():Promise<boolean> {
+    let person = await this.setupService.fetchPerson();
+    if (!person.phone || !person.name) {
+      return this.navCtrl.setRoot(SetupPage);
+    } else {
+      return this.ensureLocations(person.phone);
+    }
+  }
+
+  async ensureLocations(phone): Promise<boolean> {
+    // Not happy that this function is being used just for its menu bar side effect.
+    // Should probably fix that and fix how we determine which one is provisioned.
+    var addresses = await this.addressService.fetchAll();
+
+    // If current address is already provisioned, we can skip the next part.
+    if (this.address && this.address.addressStatus === 'PROVISIONED') {return;}
+    
+    addresses.forEach(element => {
+      if (element.addressStatus === 'PROVISIONED') {
+        this.address = element;
+      }
+    });
+  }
+
+  async ionViewDidEnter() {
   }
 
   getLatitude(): number {

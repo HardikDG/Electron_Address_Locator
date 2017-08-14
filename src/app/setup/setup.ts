@@ -1,26 +1,34 @@
 import { Component } from '@angular/core';
 import { NavController, NavParams } from 'ionic-angular';
 import { HomePage } from '../pages';
+import { Person } from '../core/person';
+import { SetupService } from "../core/setup-service";
 
-/*
-  Generated class for the Setup page.
-
-  See http://ionicframework.com/docs/v2/components/#navigation for more info on
-  Ionic pages and navigation.
-*/
 @Component({
   selector: 'page-setup',
-  templateUrl: 'setup.html'
+  templateUrl: 'setup.html',
 })
 export class SetupPage {
+  // Configuration Values hard-coded until we write Storage code.
+  personInfo: Person = new Person('','');
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {}
+  constructor(private setupService: SetupService,
+    public navCtrl: NavController,
+    public navParams: NavParams) { }
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad SetupPage');
+    this.setupService.fetchPerson()
+      .then(p => {
+        this.personInfo = p;
+      })
+      .catch(e => {
+        console.error(e);
+      });
   }
 
   setInfo() {
-    this.navCtrl.setRoot(HomePage)  
+    this.setupService.setPerson(this.personInfo)
+      .then(() => this.navCtrl.setRoot(HomePage))
+      .catch((e) => console.error(e));
   }
 }

@@ -12,17 +12,17 @@ class MenuManager {
 
     // This is a placeholder for our saved locations,
     // which will need to be managed elsewhere.
-    this.locationMenuItems = [{
-      label: 'None - Create Some Locations',
-      enabled: false
-    }]
+    // this.locationMenuItems = [{
+    //   label: 'None - Create Some Locations',
+    //   enabled: false
+    // }]
 
     // Creating the the LocationMenu here so that it can 
     // be manipulated from outside. Initially set to disabled.
-    this.locationMenu = new MenuItem({
-      label: 'Locations',
-      submenu: this.locationMenuItems
-    })
+    // this.locationMenu = new MenuItem({
+    //   label: 'Locations',
+    //   submenu: this.locationMenuItems
+    // })
 
   }
 
@@ -37,23 +37,55 @@ class MenuManager {
 
     menu.append(new MenuItem(this.getEditMenuTemplate()))
     menu.append(new MenuItem(this.getViewMenuTemplate()))
-    menu.append(this.locationMenu)
+    // menu.append(this.locationMenu)
     menu.append(new MenuItem(this.getWindowMenuTemplate()))
     menu.append(new MenuItem(this.getHelpMenuTemplate()))
 
     return menu;
   }
 
-  buildTrayMenu() {
+  buildTrayMenu(addresses, callback) {
     const menu = new Menu()
-    menu.append(new MenuItem({label: 'Map', click: this.onMap}))
+    menu.append(new MenuItem({ label: 'Map', click: this.onMap }))
     menu.append(
-      new MenuItem({label: 'View Locations', click: this.onLocations}))
-    menu.append(new MenuItem({type: 'separator'}))
-    menu.append(this.locationMenu)
-    menu.append(new MenuItem({type: 'separator'}))
-    menu.append(new MenuItem({role: 'quit'}))
+      new MenuItem({ label: 'View Locations', click: this.onLocations }))
+    menu.append(new MenuItem({ type: 'separator' }))
+    menu.append(this.buildLocationMenuItems(addresses, callback))
+    menu.append(new MenuItem({ type: 'separator' }))
+    menu.append(new MenuItem({ role: 'quit' }))
     return menu
+  }
+
+  buildLocationMenuItems(addresses, callback) {
+    let locationMenuItems = []
+    
+    if (addresses.length) {
+      var i = 1;
+
+      addresses.forEach((address) => {
+        console.log(address)
+        locationMenuItems.push(new MenuItem({
+          label: `${address.addressLine1} ${address.community} ${address.state}`,
+          checked: address.addressStatus === 'PROVISIONED',
+          enabled: address.addressStatus === 'GEOCODED',
+          accelerator: `CmdOrCtrl+${i}`,
+          click: () => callback(address)
+        }))
+        i++
+      })
+    } else {
+      locationMenuItems = [{
+        label: 'None - Create Some Locations',
+        enabled: false
+      }]
+    }
+
+    const locationMenu = new MenuItem({
+      label: 'Locations',
+      submenu: locationMenuItems
+    })
+
+    return locationMenu
   }
 
   isMac() {
